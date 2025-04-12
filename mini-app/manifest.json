@@ -1,6 +1,6 @@
 {
-  "name": "Delogate Task Creator",
-  "description": "Мини-приложение для создания задач в Delogate",
-  "version": "1.0",
-  "short_name": "Delogate"
+    "name": "Delogate Task Creator",
+    "description": "Мини-приложение для создания задач",
+    "version": "1.0",
+    "short_name": "Delogate"
 }

@@ -14,13 +14,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     const charsRemaining = document.getElementById('charsRemaining');
+    const infoIcon = document.getElementById('infoIcon');
+    const infoTooltip = document.getElementById('infoTooltip');
 
-    // Установка минимальной даты (сегодня) и времени (текущее + 1 час)
+    // Установка минимальной даты (текущая дата + 1 час)
     const now = new Date();
     now.setHours(now.getHours() + 1);
-    const minDateTime = now.toISOString().slice(0, 16);
-    deadline.min = minDateTime;
-    deadline.value = minDateTime;
+    deadline.min = now.toISOString().slice(0, 16);
+    deadline.value = now.toISOString().slice(0, 16);
+
+    // Обработчик для информера
+    infoIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        infoTooltip.style.display = infoTooltip.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', function() {
+        infoTooltip.style.display = 'none';
+    });
 
     // Ограничение символов в описании задачи
     taskText.addEventListener('input', function() {
@@ -36,28 +47,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Обработка фото (до 3 штук - ограничение Telegram)
+    // Обработка файлов (до 10 штук)
     photoInput.addEventListener('change', function(e) {
         preview.innerHTML = '';
-        const files = Array.from(e.target.files).slice(0, 3);
+        const files = Array.from(e.target.files).slice(0, 10);
         
         if (files.length > 0) {
             tg.HapticFeedback.impactOccurred('light');
             files.forEach(file => {
-                if (!file.type.match('image.*')) return;
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
                 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    preview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
+                const icon = document.createElement('img');
+                icon.src = file.type.startsWith('image/') ? 
+                    URL.createObjectURL(file) : 
+                    'https://cdn-icons-png.flaticon.com/512/136/136521.png';
+                
+                const name = document.createElement('span');
+                name.textContent = file.name.length > 15 ? 
+                    file.name.substring(0, 12) + '...' : 
+                    file.name;
+                
+                const remove = document.createElement('span');
+                remove.className = 'file-remove';
+                remove.innerHTML = '&times;';
+                remove.addEventListener('click', () => {
+                    fileItem.remove();
+                    tg.HapticFeedback.impactOccurred('light');
+                });
+                
+                fileItem.appendChild(icon);
+                fileItem.appendChild(name);
+                fileItem.appendChild(remove);
+                preview.appendChild(fileItem);
             });
         }
     });
 
-    // Отправка формы через Telegram WebApp
+    // Отправка формы
     taskForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -70,38 +97,17 @@ document.addEventListener('DOMContentLoaded', function() {
         tg.MainButton.showProgress();
         tg.HapticFeedback.impactOccurred('medium');
 
-        // Подготовка данных для отправки
         const taskData = {
             action: 'create_task',
             text: taskText.value,
             deadline: deadline.value,
-            photos: []
+            files: Array.from(photoInput.files).slice(0, 10).map(f => f.name)
         };
 
-        // Если есть фото - добавляем их как base64
-        if (photoInput.files.length > 0) {
-            const photoPromises = Array.from(photoInput.files).slice(0, 3).map(file => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result.split(',')[1]);
-                    reader.readAsDataURL(file);
-                });
-            });
-
-            Promise.all(photoPromises).then(photos => {
-                taskData.photos = photos;
-                sendTaskData(taskData);
-            });
-        } else {
-            sendTaskData(taskData);
-        }
-    });
-
-    function sendTaskData(taskData) {
         tg.sendData(JSON.stringify(taskData));
         tg.MainButton.hideProgress();
         tg.showAlert("Задача успешно создана!", () => tg.close());
-    }
+    });
 
     // Переключение вкладок
     tabs.forEach(tab => {
@@ -120,12 +126,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Загрузка задач с учетом Telegram API
+    // Загрузка задач (сортировка по убыванию даты)
     async function loadUserTasks() {
         try {
-            // В реальном приложении здесь будет запрос к вашему бэкенду через Telegram
             const response = await fetchTasksFromBackend();
-            renderTasks(response.tasks || []);
+            const sortedTasks = response.tasks.sort((a, b) => 
+                new Date(b.deadline) - new Date(a.deadline));
+            renderTasks(sortedTasks);
         } catch (error) {
             tg.showAlert("Ошибка загрузки задач");
             console.error(error);
@@ -134,9 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function fetchTasksFromBackend() {
-        // Заглушка для демонстрации - в реальном приложении здесь будет fetch к вашему API
         return new Promise(resolve => {
-            setTimeout(() => resolve({ tasks: getExampleTasks() }), 500);
+            setTimeout(() => resolve({ 
+                tasks: getExampleTasks().sort((a, b) => 
+                    new Date(b.deadline) - new Date(a.deadline))
+            }), 500);
         });
     }
 
@@ -148,14 +157,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 deadline: new Date(Date.now() + 86400000).toISOString(),
                 status: "completed",
                 solution: "Презентация включает 15 слайдов с анализом рынка.",
-                photos: []
+                files: []
             },
             {
                 id: 2,
                 text: "Написать техническое задание",
                 deadline: new Date(Date.now() + 172800000).toISOString(),
                 status: "created",
-                photos: []
+                files: []
             },
             {
                 id: 3,
@@ -163,7 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 deadline: new Date(Date.now() + 259200000).toISOString(),
                 status: "clarification",
                 question: "Какие цвета должны быть в логотипе?",
-                photos: []
+                answer: "Предпочтительно синие и белые цвета",
+                files: ["logo_ref1.jpg", "brand_guide.pdf"],
+                editable: true
             }
         ];
     }
@@ -208,16 +219,155 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="clarification-question">
                     <strong>Вопрос оператора:</strong> ${task.question}
                 </div>
-                <textarea class="clarification-input" placeholder="Введите ваш ответ..." maxlength="500"></textarea>
-                <div class="clarification-counter"><span class="clarification-remaining">500</span>/500 символов</div>
-                <button class="submit-btn clarification-btn">Отправить ответ</button>
+                <div class="clarification-view">
+                    <p><strong>Ваш ответ:</strong> ${task.answer || 'Еще не предоставлен'}</p>
+                    ${task.files && task.files.length > 0 ? `
+                    <div class="file-preview">
+                        ${task.files.map(file => `
+                            <div class="file-item">
+                                <img src="${file.endsWith('.jpg') || file.endsWith('.png') ? 
+                                    'icon-image.png' : 'icon-file.png'}" alt="File">
+                                <span>${file}</span>
+                            </div>
+                        `).join('')}
+                    </div>` : ''}
+                    ${task.editable ? `<button class="edit-btn">Изменить ответ</button>` : ''}
+                </div>
+                <div class="clarification-edit" style="display: none;">
+                    <textarea class="clarification-input" placeholder="Введите ваш ответ..." 
+                        maxlength="500">${task.answer || ''}</textarea>
+                    <div class="clarification-counter">
+                        <span class="clarification-remaining">${500 - (task.answer?.length || 0)}</span>/500 символов
+                    </div>
+                    <input type="file" class="clarification-files" multiple>
+                    <div class="file-preview edit-files-preview"></div>
+                    <div class="edit-buttons">
+                        <button class="save-btn">Сохранить</button>
+                        <button class="cancel-btn">Отмена</button>
+                    </div>
+                </div>
                 ` : ''}
             `;
             taskList.appendChild(taskCard);
         });
 
         setupSolutionDropdowns();
-        setupClarificationInputs();
+        setupClarificationEdits();
+    }
+
+    function setupClarificationEdits() {
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.task-card');
+                card.querySelector('.clarification-view').style.display = 'none';
+                card.querySelector('.clarification-edit').style.display = 'block';
+                tg.HapticFeedback.impactOccurred('light');
+            });
+        });
+
+        document.querySelectorAll('.cancel-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.task-card');
+                card.querySelector('.clarification-view').style.display = 'block';
+                card.querySelector('.clarification-edit').style.display = 'none';
+                tg.HapticFeedback.impactOccurred('light');
+            });
+        });
+
+        document.querySelectorAll('.save-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.task-card');
+                const input = card.querySelector('.clarification-input');
+                const filesInput = card.querySelector('.clarification-files');
+                
+                if (input.value.trim().length < 10) {
+                    tg.showAlert("Ответ должен содержать минимум 10 символов");
+                    tg.HapticFeedback.notificationOccurred('error');
+                    return;
+                }
+
+                // Здесь должна быть отправка данных на сервер
+                tg.HapticFeedback.impactOccurred('heavy');
+                tg.showAlert("Изменения сохранены");
+                
+                // Обновляем просмотр
+                const view = card.querySelector('.clarification-view');
+                view.querySelector('p').innerHTML = `<strong>Ваш ответ:</strong> ${input.value}`;
+                
+                // Обновляем файлы (в реальном приложении нужно обработать загрузку)
+                if (filesInput.files.length > 0) {
+                    const filesPreview = view.querySelector('.file-preview') || 
+                        document.createElement('div');
+                    filesPreview.className = 'file-preview';
+                    filesPreview.innerHTML = Array.from(filesInput.files).map(file => `
+                        <div class="file-item">
+                            <img src="${file.type.startsWith('image/') ? 
+                                'icon-image.png' : 'icon-file.png'}" alt="File">
+                            <span>${file.name}</span>
+                        </div>
+                    `).join('');
+                    view.appendChild(filesPreview);
+                }
+
+                view.style.display = 'block';
+                card.querySelector('.clarification-edit').style.display = 'none';
+            });
+        });
+
+        document.querySelectorAll('.clarification-input').forEach(input => {
+            const counter = input.parentElement.querySelector('.clarification-remaining');
+            
+            input.addEventListener('input', function() {
+                const remaining = 500 - this.value.length;
+                counter.textContent = remaining;
+                
+                if (remaining < 50) {
+                    counter.style.color = 'var(--secondary-color)';
+                    if (remaining % 10 === 0) tg.HapticFeedback.impactOccurred('light');
+                } else {
+                    counter.style.color = '#666';
+                }
+            });
+        });
+
+        document.querySelectorAll('.clarification-files').forEach(input => {
+            const preview = input.nextElementSibling;
+            
+            input.addEventListener('change', function() {
+                preview.innerHTML = '';
+                const files = Array.from(this.files).slice(0, 10);
+                
+                if (files.length > 0) {
+                    files.forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        
+                        const icon = document.createElement('img');
+                        icon.src = file.type.startsWith('image/') ? 
+                            URL.createObjectURL(file) : 
+                            'https://cdn-icons-png.flaticon.com/512/136/136521.png';
+                        
+                        const name = document.createElement('span');
+                        name.textContent = file.name.length > 15 ? 
+                            file.name.substring(0, 12) + '...' : 
+                            file.name;
+                        
+                        const remove = document.createElement('span');
+                        remove.className = 'file-remove';
+                        remove.innerHTML = '&times;';
+                        remove.addEventListener('click', () => {
+                            fileItem.remove();
+                            tg.HapticFeedback.impactOccurred('light');
+                        });
+                        
+                        fileItem.appendChild(icon);
+                        fileItem.appendChild(name);
+                        fileItem.appendChild(remove);
+                        preview.appendChild(fileItem);
+                    });
+                }
+            });
+        });
     }
 
     function getStatusInfo(status) {

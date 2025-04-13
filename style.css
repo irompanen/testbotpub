@@ -32,25 +32,70 @@ body {
     margin: 0 auto;
 }
 
+/* Стили для шапки */
 .app-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding: 20px 0;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    background: linear-gradient(135deg, #6a35ff 0%, #8a5cff 100%);
     color: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    padding: 20px 0;
+    text-align: center;
+    border-radius: 0 0 20px 20px;
+    margin-bottom: 20px;
 }
 
-.app-header h1 {
-    font-size: 28px;
+.header-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.logo-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 50%;
+    background: white;
+    padding: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.title-container h1 {
+    margin: 0;
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: 8px;
 }
 
-.app-header p {
+.title-container p {
+    margin: 5px 0 0;
     font-size: 16px;
     opacity: 0.9;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 480px) {
+    .logo-title-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .title-container h1 {
+        font-size: 20px;
+    }
+    
+    .title-container p {
+        font-size: 14px;
+    }
 }
 
 .tab-container {

@@ -411,4 +411,4 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tg.initDataUnsafe.user) {
         console.log(`User: ${tg.initDataUnsafe.user.first_name} ${tg.initDataUnsafe.user.last_name}`);
     }
-});
+}); // Закрывающая скобка для DOMContentLoaded

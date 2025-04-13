@@ -5,51 +5,74 @@ document.addEventListener('DOMContentLoaded', function() {
     tg.enableClosingConfirmation();
 
     // Элементы интерфейса
-    const taskForm = document.getElementById('taskForm');
-    const taskText = document.getElementById('taskText');
-    const deadline = document.getElementById('deadline');
-    const photoInput = document.getElementById('photos');
-    const preview = document.getElementById('preview');
-    const taskList = document.getElementById('taskList');
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-    const charsRemaining = document.getElementById('charsRemaining');
-    const infoIcon = document.getElementById('infoIcon');
-    const infoTooltip = document.getElementById('infoTooltip');
+    const elements = {
+        taskForm: document.getElementById('taskForm'),
+        taskText: document.getElementById('taskText'),
+        deadline: document.getElementById('deadline'),
+        photoInput: document.getElementById('photos'),
+        preview: document.getElementById('preview'),
+        taskList: document.getElementById('taskList'),
+        tabs: document.querySelectorAll('.tab'),
+        tabContents: document.querySelectorAll('.tab-content'),
+        charsRemaining: document.getElementById('charsRemaining'),
+        infoIcon: document.getElementById('infoIcon'),
+        infoTooltip: document.getElementById('infoTooltip')
+    };
 
-    // Установка минимальной даты (текущая дата + 1 час)
+    // Инициализация даты и времени
     const now = new Date();
     now.setHours(now.getHours() + 1);
-    deadline.min = now.toISOString().slice(0, 16);
-    deadline.value = now.toISOString().slice(0, 16);
+    const minDateTime = now.toISOString().slice(0, 16);
+    elements.deadline.min = minDateTime;
+    elements.deadline.value = minDateTime;
 
-    // Обработчик для информера
-    infoIcon.addEventListener('click', function(e) {
-        e.stopPropagation();
-        infoTooltip.style.display = infoTooltip.style.display === 'block' ? 'none' : 'block';
-    });
+    // Обработчики событий
+    setupEventListeners();
 
-    document.addEventListener('click', function() {
-        infoTooltip.style.display = 'none';
-    });
+    function setupEventListeners() {
+        // Информер
+        elements.infoIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            elements.infoTooltip.style.display = elements.infoTooltip.style.display === 'block' ? 'none' : 'block';
+        });
 
-    // Ограничение символов в описании задачи
-    taskText.addEventListener('input', function() {
+        document.addEventListener('click', function() {
+            elements.infoTooltip.style.display = 'none';
+        });
+
+        // Ограничение символов
+        elements.taskText.addEventListener('input', updateCharCounter);
+
+        // Обработка файлов
+        elements.photoInput.addEventListener('change', handleFileUpload);
+
+        // Отправка формы
+        elements.taskForm.addEventListener('submit', handleFormSubmit);
+
+        // Переключение вкладок
+        elements.tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tg.HapticFeedback.impactOccurred('light');
+                switchTab(tab);
+            });
+        });
+    }
+
+    function updateCharCounter() {
         const maxLength = 1000;
         const remaining = maxLength - this.value.length;
-        charsRemaining.textContent = remaining;
+        elements.charsRemaining.textContent = remaining;
         
         if (remaining < 50) {
-            charsRemaining.style.color = 'var(--secondary-color)';
+            elements.charsRemaining.style.color = 'var(--secondary-color)';
             tg.HapticFeedback.impactOccurred('light');
         } else {
-            charsRemaining.style.color = '#666';
+            elements.charsRemaining.style.color = '#666';
         }
-    });
+    }
 
-    // Обработка файлов (до 10 штук)
-    photoInput.addEventListener('change', function(e) {
-        preview.innerHTML = '';
+    function handleFileUpload(e) {
+        elements.preview.innerHTML = '';
         const files = Array.from(e.target.files).slice(0, 10);
         
         if (files.length > 0) {
@@ -79,16 +102,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileItem.appendChild(icon);
                 fileItem.appendChild(name);
                 fileItem.appendChild(remove);
-                preview.appendChild(fileItem);
+                elements.preview.appendChild(fileItem);
             });
         }
-    });
+    }
 
-    // Отправка формы
-    taskForm.addEventListener('submit', function(e) {
+    function handleFormSubmit(e) {
         e.preventDefault();
         
-        if (!taskText.value.trim()) {
+        if (!elements.taskText.value.trim()) {
             tg.showAlert("Пожалуйста, опишите задачу");
             tg.HapticFeedback.notificationOccurred('error');
             return;
@@ -99,34 +121,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const taskData = {
             action: 'create_task',
-            text: taskText.value,
-            deadline: deadline.value,
-            files: Array.from(photoInput.files).slice(0, 10).map(f => f.name)
+            text: elements.taskText.value,
+            deadline: elements.deadline.value,
+            files: Array.from(elements.photoInput.files).slice(0, 10).map(f => f.name)
         };
 
         tg.sendData(JSON.stringify(taskData));
         tg.MainButton.hideProgress();
         tg.showAlert("Задача успешно создана!", () => tg.close());
-    });
+    }
 
-    // Переключение вкладок
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tg.HapticFeedback.impactOccurred('light');
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            
-            tab.classList.add('active');
-            const tabId = tab.getAttribute('data-tab');
-            document.getElementById(tabId).classList.add('active');
-            
-            if (tabId === 'tasks') {
-                loadUserTasks();
-            }
-        });
-    });
+    function switchTab(tab) {
+        elements.tabs.forEach(t => t.classList.remove('active'));
+        elements.tabContents.forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        const tabId = tab.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+        
+        if (tabId === 'tasks') {
+            loadUserTasks();
+        }
+    }
 
-    // Загрузка задач (сортировка по убыванию даты)
     async function loadUserTasks() {
         try {
             const response = await fetchTasksFromBackend();
@@ -180,10 +197,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderTasks(tasks) {
-        taskList.innerHTML = '';
+        elements.taskList.innerHTML = '';
         
         if (tasks.length === 0) {
-            taskList.innerHTML = '<p class="loading">Нет активных задач</p>';
+            elements.taskList.innerHTML = '<p class="loading">Нет активных задач</p>';
             return;
         }
 
@@ -194,65 +211,101 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusInfo = getStatusInfo(task.status);
             const deadlineDate = formatTelegramDate(task.deadline);
             
-            taskCard.innerHTML = `
-                <div class="task-id">Задача #${task.id}</div>
-                <div class="task-text">${task.text}</div>
-                <div class="task-deadline">⏰ ${deadlineDate}</div>
-                <div class="task-status ${statusInfo.class}">
-                    ${statusInfo.text}
-                </div>
-                
-                ${task.status === 'completed' && task.solution ? `
-                <div class="solution-dropdown">
-                    <button class="solution-toggle">
-                        Показать решение
-                        <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1.5L6 6.5L11 1.5" stroke="#388e3c" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                    </button>
-                    <div class="solution-content">
-                        <p>${task.solution}</p>
-                    </div>
-                </div>` : ''}
-                
-                ${task.status === 'clarification' ? `
-                <div class="clarification-question">
-                    <strong>Вопрос оператора:</strong> ${task.question}
-                </div>
-                <div class="clarification-view">
-                    <p><strong>Ваш ответ:</strong> ${task.answer || 'Еще не предоставлен'}</p>
-                    ${task.files && task.files.length > 0 ? `
-                    <div class="file-preview">
-                        ${task.files.map(file => `
-                            <div class="file-item">
-                                <img src="${file.endsWith('.jpg') || file.endsWith('.png') ? 
-                                    'icon-image.png' : 'icon-file.png'}" alt="File">
-                                <span>${file}</span>
-                            </div>
-                        `).join('')}
-                    </div>` : ''}
-                    ${task.editable ? `<button class="edit-btn">Изменить ответ</button>` : ''}
-                </div>
-                <div class="clarification-edit" style="display: none;">
-                    <textarea class="clarification-input" placeholder="Введите ваш ответ..." 
-                        maxlength="500">${task.answer || ''}</textarea>
-                    <div class="clarification-counter">
-                        <span class="clarification-remaining">${500 - (task.answer?.length || 0)}</span>/500 символов
-                    </div>
-                    <input type="file" class="clarification-files" multiple>
-                    <div class="file-preview edit-files-preview"></div>
-                    <div class="edit-buttons">
-                        <button class="save-btn">Сохранить</button>
-                        <button class="cancel-btn">Отмена</button>
-                    </div>
-                </div>
-                ` : ''}
-            `;
-            taskList.appendChild(taskCard);
+            taskCard.innerHTML = generateTaskHTML(task, statusInfo, deadlineDate);
+            elements.taskList.appendChild(taskCard);
         });
 
         setupSolutionDropdowns();
         setupClarificationEdits();
+    }
+
+    function generateTaskHTML(task, statusInfo, deadlineDate) {
+        return `
+            <div class="task-id">Задача #${task.id}</div>
+            <div class="task-text">${task.text}</div>
+            <div class="task-deadline">⏰ ${deadlineDate}</div>
+            <div class="task-status ${statusInfo.class}">
+                ${statusInfo.text}
+            </div>
+            
+            ${task.status === 'completed' && task.solution ? `
+            <div class="solution-dropdown">
+                <button class="solution-toggle">
+                    Показать решение
+                    <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1.5L6 6.5L11 1.5" stroke="#388e3c" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <div class="solution-content">
+                    <p>${task.solution}</p>
+                </div>
+            </div>` : ''}
+            
+            ${task.status === 'clarification' ? `
+            <div class="clarification-question">
+                <strong>Вопрос оператора:</strong> ${task.question}
+            </div>
+            <div class="clarification-view">
+                <p><strong>Ваш ответ:</strong> ${task.answer || 'Еще не предоставлен'}</p>
+                ${task.files && task.files.length > 0 ? `
+                <div class="file-preview">
+                    ${task.files.map(file => `
+                        <div class="file-item">
+                            <img src="${file.endsWith('.jpg') || file.endsWith('.png') ? 
+                                'icon-image.png' : 'icon-file.png'}" alt="File">
+                            <span>${file}</span>
+                        </div>
+                    `).join('')}
+                </div>` : ''}
+                ${task.editable ? `<button class="edit-btn">Изменить ответ</button>` : ''}
+            </div>
+            <div class="clarification-edit" style="display: none;">
+                <textarea class="clarification-input" placeholder="Введите ваш ответ..." 
+                    maxlength="500">${task.answer || ''}</textarea>
+                <div class="clarification-counter">
+                    <span class="clarification-remaining">${500 - (task.answer?.length || 0)}</span>/500 символов
+                </div>
+                <input type="file" class="clarification-files" multiple>
+                <div class="file-preview edit-files-preview"></div>
+                <div class="edit-buttons">
+                    <button class="save-btn">Сохранить</button>
+                    <button class="cancel-btn">Отмена</button>
+                </div>
+            </div>
+            ` : ''}
+        `;
+    }
+
+    function getStatusInfo(status) {
+        switch(status) {
+            case 'completed': return { text: 'Завершена', class: 'status-completed' };
+            case 'created': return { text: 'Создана', class: 'status-in-progress' };
+            case 'clarification': return { text: 'Уточнение', class: 'status-clarification' };
+            default: return { text: 'Новая', class: 'status-new' };
+        }
+    }
+
+    function formatTelegramDate(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function setupSolutionDropdowns() {
+        document.querySelectorAll('.solution-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                tg.HapticFeedback.impactOccurred('light');
+                const solutionContent = this.nextElementSibling;
+                const icon = this.querySelector('.dropdown-icon');
+                
+                solutionContent.classList.toggle('show');
+                icon.classList.toggle('rotated');
+            });
+        });
     }
 
     function setupClarificationEdits() {
@@ -278,7 +331,6 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function() {
                 const card = this.closest('.task-card');
                 const input = card.querySelector('.clarification-input');
-                const filesInput = card.querySelector('.clarification-files');
                 
                 if (input.value.trim().length < 10) {
                     tg.showAlert("Ответ должен содержать минимум 10 символов");
@@ -294,21 +346,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const view = card.querySelector('.clarification-view');
                 view.querySelector('p').innerHTML = `<strong>Ваш ответ:</strong> ${input.value}`;
                 
-                // Обновляем файлы (в реальном приложении нужно обработать загрузку)
-                if (filesInput.files.length > 0) {
-                    const filesPreview = view.querySelector('.file-preview') || 
-                        document.createElement('div');
-                    filesPreview.className = 'file-preview';
-                    filesPreview.innerHTML = Array.from(filesInput.files).map(file => `
-                        <div class="file-item">
-                            <img src="${file.type.startsWith('image/') ? 
-                                'icon-image.png' : 'icon-file.png'}" alt="File">
-                            <span>${file.name}</span>
-                        </div>
-                    `).join('');
-                    view.appendChild(filesPreview);
-                }
-
                 view.style.display = 'block';
                 card.querySelector('.clarification-edit').style.display = 'none';
             });
@@ -366,71 +403,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         preview.appendChild(fileItem);
                     });
                 }
-            });
-        });
-    }
-
-    function getStatusInfo(status) {
-        switch(status) {
-            case 'completed': return { text: 'Завершена', class: 'status-completed' };
-            case 'created': return { text: 'Создана', class: 'status-in-progress' };
-            case 'clarification': return { text: 'Уточнение', class: 'status-clarification' };
-            default: return { text: 'Новая', class: 'status-new' };
-        }
-    }
-
-    function formatTelegramDate(isoString) {
-        const date = new Date(isoString);
-        return date.toLocaleDateString('ru-RU', {
-            day: 'numeric',
-            month: 'long',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    function setupSolutionDropdowns() {
-        document.querySelectorAll('.solution-toggle').forEach(button => {
-            button.addEventListener('click', function() {
-                tg.HapticFeedback.impactOccurred('light');
-                const solutionContent = this.nextElementSibling;
-                const icon = this.querySelector('.dropdown-icon');
-                
-                solutionContent.classList.toggle('show');
-                icon.classList.toggle('rotated');
-            });
-        });
-    }
-
-    function setupClarificationInputs() {
-        document.querySelectorAll('.clarification-input').forEach(input => {
-            const counter = input.parentElement.querySelector('.clarification-remaining');
-            
-            input.addEventListener('input', function() {
-                const remaining = 500 - this.value.length;
-                counter.textContent = remaining;
-                
-                if (remaining < 50) {
-                    counter.style.color = 'var(--secondary-color)';
-                    if (remaining % 10 === 0) tg.HapticFeedback.impactOccurred('light');
-                } else {
-                    counter.style.color = '#666';
-                }
-            });
-        });
-
-        document.querySelectorAll('.clarification-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const input = this.previousElementSibling.previousElementSibling;
-                if (input.value.trim().length < 10) {
-                    tg.showAlert("Ответ должен содержать минимум 10 символов");
-                    tg.HapticFeedback.notificationOccurred('error');
-                    return;
-                }
-                
-                tg.HapticFeedback.impactOccurred('heavy');
-                tg.showAlert("Ответ отправлен на уточнение");
-                // Здесь должна быть отправка данных на сервер
             });
         });
     }

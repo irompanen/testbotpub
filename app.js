@@ -1,31 +1,82 @@
 document.addEventListener('DOMContentLoaded', function() {
     const tg = window.Telegram.WebApp;
     tg.expand();
-    tg.BackButton.hide(); // Скрываем кнопку "Назад"
+    tg.BackButton.hide();
 
-    // Скрытие клавиатуры при фокусе на текстовом поле
-    document.getElementById('taskText').addEventListener('focus', function() {
+    // Элементы интерфейса
+    const taskForm = document.getElementById('taskForm');
+    const taskText = document.getElementById('taskText');
+    const deadline = document.getElementById('deadline');
+    const photoInput = document.getElementById('photos');
+    const preview = document.getElementById('preview');
+    const taskList = document.getElementById('taskList');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Скрытие клавиатуры при фокусе
+    taskText.addEventListener('focus', function() {
         tg.HapticFeedback.impactOccurred('light');
-        setTimeout(() => tg.close(), 300); // Небольшая задержка для плавности
+        setTimeout(() => tg.close(), 300);
     });
 
-    // Обработчик для выпадающих решений
-    function setupSolutionDropdowns() {
-        document.querySelectorAll('.solution-toggle').forEach(button => {
-            button.addEventListener('click', function() {
-                const solutionContent = this.nextElementSibling;
-                const icon = this.querySelector('.dropdown-icon');
+    // Обработка фото (до 10 штук)
+    photoInput.addEventListener('change', function(e) {
+        preview.innerHTML = '';
+        const files = Array.from(e.target.files).slice(0, 10);
+        
+        if (files.length > 0) {
+            files.forEach(file => {
+                if (!file.type.match('image.*')) return;
                 
-                solutionContent.classList.toggle('show');
-                icon.classList.toggle('rotated');
-                
-                // Прокрутка к открытому решению
-                if (solutionContent.classList.contains('show')) {
-                    solutionContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
             });
+        }
+    });
+
+    // Отправка формы
+    taskForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!taskText.value.trim()) {
+            tg.showAlert("Пожалуйста, опишите задачу");
+            return;
+        }
+
+        tg.HapticFeedback.impactOccurred('light');
+        tg.close();
+
+        const formData = new FormData(taskForm);
+        const taskData = {
+            action: 'create_task',
+            text: formData.get('taskText'),
+            deadline: formData.get('deadline'),
+            photos: Array.from(formData.getAll('photos'))
+        };
+
+        tg.sendData(JSON.stringify(taskData));
+    });
+
+    // Переключение вкладок
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const tabId = tab.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'tasks') {
+                loadUserTasks();
+            }
         });
-    }
+    });
 
     // Загрузка задач с выпадающими решениями
     async function loadUserTasks() {
@@ -64,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="solution-dropdown">
                     <button class="solution-toggle">
                         Показать решение
-                        <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none">
-                            <path d="M1 1.5L6 6.5L11 1.5" stroke="${task.status === 'completed' ? '#388e3c' : '#ff8f00'}" stroke-width="2"/>
+                        <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1.5L6 6.5L11 1.5" stroke="${task.status === 'completed' ? '#388e3c' : '#ff8f00'}" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </button>
                     <div class="solution-content">
@@ -79,6 +130,25 @@ document.addEventListener('DOMContentLoaded', function() {
         setupSolutionDropdowns();
     }
 
-    // Остальной код остаётся без изменений...
-    document.querySelector('.tab[data-tab="tasks"]').addEventListener('click', loadUserTasks);
+    // Инициализация выпадающих решений
+    function setupSolutionDropdowns() {
+        document.querySelectorAll('.solution-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                const solutionContent = this.nextElementSibling;
+                const icon = this.querySelector('.dropdown-icon');
+                
+                solutionContent.classList.toggle('show');
+                icon.classList.toggle('rotated');
+                
+                if (solutionContent.classList.contains('show')) {
+                    solutionContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+    }
+
+    // Первоначальная загрузка
+    if (tg.initDataUnsafe.user) {
+        console.log(`Пользователь: ${tg.initDataUnsafe.user.first_name}`);
+    }
 });

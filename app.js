@@ -7,45 +7,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const taskForm = document.getElementById('taskForm');
     const taskText = document.getElementById('taskText');
     const deadlineInput = document.getElementById('deadline');
-    const deadlineOptions = document.querySelectorAll('.deadline-option');
+    const quickDeadlineBtns = document.querySelectorAll('.quick-deadline button');
     const charCounter = document.getElementById('charsRemaining');
     const maxChars = 1000;
 
-    // Ограничение символов и счетчик
+    // Счетчик символов
     taskText.addEventListener('input', function() {
         const remaining = maxChars - this.value.length;
         charCounter.textContent = remaining;
-        
-        if (remaining < 50) {
-            charCounter.style.color = '#ff6b6b';
-        } else {
-            charCounter.style.color = '#666';
-        }
+        charCounter.style.color = remaining < 50 ? '#ff6b6b' : '#666';
     });
 
-    // Упрощенный выбор срока выполнения
-    deadlineOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            deadlineOptions.forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
-            
+    // Быстрый выбор срока
+    quickDeadlineBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
             const hours = parseInt(this.dataset.hours);
             const deadline = new Date();
             deadline.setHours(deadline.getHours() + hours);
-            
-            // Форматирование для datetime-local
-            const formattedDate = deadline.toISOString().slice(0, 16);
-            deadlineInput.value = formattedDate;
+            deadlineInput.value = deadline.toISOString().slice(0, 16);
         });
     });
 
-    // Установка дефолтного значения (1 час)
-    document.querySelector('.deadline-option[data-hours="1"]').click();
+    // Установка дефолтного срока (1 час)
+    quickDeadlineBtns[0].click();
 
     // Загрузка примеров задач
     loadExampleTasks();
 
-    async function loadExampleTasks() {
+    function loadExampleTasks() {
         const taskList = document.getElementById('taskList');
         taskList.innerHTML = '';
         
@@ -53,9 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const createdTask = createTaskCard({
             id: 1,
             text: "Подготовить презентацию для клиента",
-            deadline: new Date(Date.now() + 3600000).toISOString(), // +1 час
-            status: "created",
-            photos: []
+            deadline: new Date(Date.now() + 3600000).toISOString(),
+            status: "created"
         });
         taskList.appendChild(createdTask);
         
@@ -63,10 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const clarificationTask = createTaskCard({
             id: 2,
             text: "Разработать логотип для нового продукта",
-            deadline: new Date(Date.now() + 86400000).toISOString(), // +24 часа
+            deadline: new Date(Date.now() + 86400000).toISOString(),
             status: "clarification",
-            question: "Какой стиль логотипа вы предпочитаете? (минимализм, ретро, градиенты и т.д.)",
-            photos: []
+            question: "Какой стиль логотипа вы предпочитаете?"
         });
         taskList.appendChild(clarificationTask);
     }
@@ -76,18 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
         taskCard.className = `task-card ${task.status === 'clarification' ? 'task-clarification' : ''}`;
         
         let statusText, statusClass;
-        switch(task.status) {
-            case 'created':
-                statusText = 'Создана';
-                statusClass = 'status-created';
-                break;
-            case 'clarification':
-                statusText = 'Уточнение';
-                statusClass = 'status-in-progress';
-                break;
-            default:
-                statusText = 'В работе';
-                statusClass = 'status-in-progress';
+        if (task.status === 'created') {
+            statusText = 'Создана';
+            statusClass = 'status-created';
+        } else {
+            statusText = 'Уточнение';
+            statusClass = 'status-in-progress';
         }
         
         let clarificationSection = '';
@@ -97,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="clarification-question">${task.question}</div>
                     <textarea class="clarification-input" placeholder="Ваш ответ..." maxlength="500"></textarea>
                     <div class="clarification-counter"><span class="clarification-chars">500</span>/500</div>
-                    <button class="submit-clarification">Отправить уточнение</button>
                 </div>
             `;
         }
@@ -105,33 +85,25 @@ document.addEventListener('DOMContentLoaded', function() {
         taskCard.innerHTML = `
             <div class="task-id">Задача #${task.id}</div>
             <div class="task-text">${task.text}</div>
-            <div class="task-deadline">⏰ ${new Date(task.deadline).toLocaleString('ru-RU')}</div>
-            <div class="task-status ${statusClass}">
-                ${statusText}
-            </div>
+            <div class="task-deadline">⏰ ${new Date(task.deadline).toLocaleString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</div>
+            <div class="task-status ${statusClass}">${statusText}</div>
             ${clarificationSection}
         `;
         
-        // Обработчик для счетчика символов в уточнении
-        if (task.status === 'clarification') {
-            const clarificationInput = taskCard.querySelector('.clarification-input');
-            const clarificationCounter = taskCard.querySelector('.clarification-chars');
-            
+        // Обработчик счетчика символов для уточнения
+        const clarificationInput = taskCard.querySelector('.clarification-input');
+        if (clarificationInput) {
+            const counter = taskCard.querySelector('.clarification-chars');
             clarificationInput.addEventListener('input', function() {
                 const remaining = 500 - this.value.length;
-                clarificationCounter.textContent = remaining;
-                
-                if (remaining < 50) {
-                    clarificationCounter.style.color = '#ff6b6b';
-                } else {
-                    clarificationCounter.style.color = '#666';
-                }
+                counter.textContent = remaining;
+                counter.style.color = remaining < 50 ? '#ff6b6b' : '#666';
             });
         }
         
         return taskCard;
     }
 
-    // Остальной код (обработка фото, отправка формы и т.д.) остается без изменений
+    // Остальная логика (обработка фото, отправка формы) остается без изменений
     // ...
 });

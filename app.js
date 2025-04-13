@@ -6,16 +6,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Элементы интерфейса
     const taskForm = document.getElementById('taskForm');
     const taskText = document.getElementById('taskText');
-    const deadline = document.getElementById('deadline');
+    const deadlineDate = document.getElementById('deadline-date');
+    const deadlineTime = document.getElementById('deadline-time');
     const photoInput = document.getElementById('photos');
     const preview = document.getElementById('preview');
     const taskList = document.getElementById('taskList');
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
+    const charsRemaining = document.getElementById('charsRemaining');
 
-    // Убрано закрытие мини-приложения при фокусе
-    taskText.addEventListener('focus', function() {
-        tg.HapticFeedback.impactOccurred('light');
+    // Установка минимальной даты (сегодня)
+    const today = new Date().toISOString().split('T')[0];
+    deadlineDate.setAttribute('min', today);
+    deadlineDate.value = today;
+
+    // Ограничение символов в описании задачи
+    taskText.addEventListener('input', function() {
+        const maxLength = 1000;
+        const remaining = maxLength - this.value.length;
+        charsRemaining.textContent = remaining;
+        
+        if (remaining < 50) {
+            charsRemaining.style.color = '#ff6b6b';
+        } else {
+            charsRemaining.style.color = '#666';
+        }
     });
 
     // Обработка фото (до 10 штук)
@@ -49,17 +64,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tg.HapticFeedback.impactOccurred('light');
 
+        // Собираем дату и время
+        const deadline = `${deadlineDate.value}T${deadlineTime.value}:00`;
+        
         const formData = new FormData(taskForm);
         const taskData = {
             action: 'create_task',
             text: formData.get('taskText'),
-            deadline: formData.get('deadline'),
+            deadline: deadline,
             photos: Array.from(formData.getAll('photos'))
         };
 
         tg.sendData(JSON.stringify(taskData));
-        tg.close(); // Закрываем только после отправки данных
+        tg.close();
     });
+
     // Переключение вкладок
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -91,8 +110,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 id: 2,
                 text: "Написать техническое задание",
                 deadline: "2023-12-10T12:00",
-                status: "completed",
-                solution: "ТЗ содержит все требования заказчика, сроки и этапы реализации проекта.",
+                status: "created",
+                solution: "",
+                photos: []
+            },
+            {
+                id: 3,
+                text: "Разработать логотип для нового продукта",
+                deadline: "2023-12-20T15:00",
+                status: "clarification",
+                question: "Какие цвета должны преобладать в логотипе и есть ли у вас примеры, которые вам нравятся?",
                 photos: []
             }
         ];
@@ -101,31 +128,59 @@ document.addEventListener('DOMContentLoaded', function() {
         exampleTasks.forEach(task => {
             const taskCard = document.createElement('div');
             taskCard.className = 'task-card';
+            
+            let statusText = '';
+            let statusClass = '';
+            
+            switch(task.status) {
+                case 'completed':
+                    statusText = 'Завершена';
+                    statusClass = 'status-completed';
+                    break;
+                case 'created':
+                    statusText = 'Создана';
+                    statusClass = 'status-in-progress';
+                    break;
+                case 'clarification':
+                    statusText = 'Уточнение';
+                    statusClass = 'status-clarification';
+                    break;
+            }
+            
             taskCard.innerHTML = `
                 <div class="task-id">Задача #${task.id}</div>
                 <div class="task-text">${task.text}</div>
-                <div class="task-deadline">⏰ ${new Date(task.deadline).toLocaleString('ru-RU')}</div>
-                <div class="task-status ${task.status === 'completed' ? 'status-completed' : 'status-in-progress'}">
-                    ${task.status === 'completed' ? 'Завершена' : 'В работе'}
+                <div class="task-deadline">⏰ ${new Date(task.deadline).toLocaleString('ru-RU', {day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</div>
+                <div class="task-status ${statusClass}">
+                    ${statusText}
                 </div>
                 
-                ${task.solution ? `
+                ${task.status === 'completed' && task.solution ? `
                 <div class="solution-dropdown">
                     <button class="solution-toggle">
                         Показать решение
                         <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1.5L6 6.5L11 1.5" stroke="${task.status === 'completed' ? '#388e3c' : '#ff8f00'}" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M1 1.5L6 6.5L11 1.5" stroke="#388e3c" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </button>
                     <div class="solution-content">
                         <p>${task.solution}</p>
                     </div>
                 </div>` : ''}
+                
+                ${task.status === 'clarification' ? `
+                <div class="clarification-question">
+                    <strong>Вопрос оператора:</strong> ${task.question}
+                </div>
+                <textarea class="clarification-input" placeholder="Введите ваш ответ..." maxlength="500"></textarea>
+                <div class="clarification-counter"><span class="clarification-remaining">500</span>/500 символов</div>
+                ` : ''}
             `;
             taskList.appendChild(taskCard);
         });
 
         setupSolutionDropdowns();
+        setupClarificationInputs();
     }
 
     // Инициализация выпадающих решений
@@ -140,6 +195,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (solutionContent.classList.contains('show')) {
                     solutionContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+    }
+
+    // Инициализация полей для уточнения
+    function setupClarificationInputs() {
+        document.querySelectorAll('.clarification-input').forEach(input => {
+            const counter = input.parentElement.querySelector('.clarification-remaining');
+            
+            input.addEventListener('input', function() {
+                const remaining = 500 - this.value.length;
+                counter.textContent = remaining;
+                
+                if (remaining < 50) {
+                    counter.style.color = '#ff6b6b';
+                } else {
+                    counter.style.color = '#666';
                 }
             });
         });

@@ -1,78 +1,51 @@
 :root {
-    /* Обновлённая цветовая гамма как на сайте */
-    --primary: #6D31ED;
-    --primary-light: #AA9DFF;
-    --primary-dark: #4F28A5;
-    --accent: #FF5E5E;
-    --dark: #1E1E1E;
-    --light: #F7F7F7;
-    --gray: #E5E5E5;
-    
-    /* Шрифты */
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-title: 'Unbounded', var(--font-main);
+    --primary-color: #6a35ff;
+    --primary-light: #9a67ff;
+    --primary-dark: #4a00d4;
+    --secondary-color: #ff6b6b;
+    --text-color: #333;
+    --light-text: #f8f9fa;
+    --bg-color: #f5f5ff;
+    --card-bg: #ffffff;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 20px rgba(106, 53, 255, 0.1);
 }
 
-/* Обновлённая шапка */
-.app-header {
-    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
-    padding: 24px 0;
-    text-align: center;
-    position: relative;
-    border-radius: 0 0 24px 24px;
+/* ... (остальные стили остаются как в предыдущей версии) ... */
+
+/* Новые стили для выпадающих решений */
+.solution-dropdown {
+    margin-top: 15px;
 }
 
-.app-header h1 {
-    font-family: var(--font-title);
-    font-size: 28px;
-    font-weight: 700;
-    color: white;
-    margin: 0;
+.solution-toggle {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-.app-header p {
-    font-size: 16px;
-    color: rgba(255,255,255,0.9);
-    margin: 8px 0 0;
-}
-
-/* Улучшенная форма */
-.task-form {
-    background: white;
-    border-radius: 24px;
-    padding: 32px;
-    box-shadow: 0 8px 32px rgba(109, 49, 237, 0.1);
-}
-
-/* Стили для превью фото */
-.preview-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.preview-container img {
-    width: 100%;
-    height: 80px;
-    object-fit: cover;
+.solution-content {
+    display: none;
+    padding: 12px;
+    background: #f9f9f9;
     border-radius: 8px;
-    border: 1px solid var(--gray);
+    margin-top: 8px;
+    border-left: 3px solid var(--primary-color);
 }
 
-/* Улучшенные карточки задач */
-.task-card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-    border-left: 4px solid var(--primary);
+.solution-content.show {
+    display: block;
 }
 
-.solution-card {
-    background: #F9F5FF;
-    border-radius: 12px;
-    padding: 16px;
-    margin-top: 16px;
+.dropdown-icon {
+    transition: transform 0.3s;
+}
+
+.dropdown-icon.rotated {
+    transform: rotate(180deg);
 }

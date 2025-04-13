@@ -18,15 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
         tg.HapticFeedback.impactOccurred('light');
     });
 
-    // Добавлена кнопка для скрытия клавиатуры
-    const hideKeyboardBtn = document.createElement('button');
-    hideKeyboardBtn.className = 'hide-keyboard-btn';
-    hideKeyboardBtn.textContent = 'Скрыть клавиатуру';
-    hideKeyboardBtn.addEventListener('click', function() {
-        taskText.blur();
-    });
-    taskForm.insertBefore(hideKeyboardBtn, taskForm.lastElementChild);
-
     // Обработка фото (до 10 штук)
     photoInput.addEventListener('change', function(e) {
         preview.innerHTML = '';

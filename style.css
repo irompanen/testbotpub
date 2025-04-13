@@ -1,74 +1,97 @@
-/* Добавить/заменить в существующих стилях */
+/* Добавленные/измененные стили */
 
-.container {
-    max-width: 100%;
-    padding: 10px;
-    margin: 0 auto;
+.deadline-wrapper {
+    display: flex;
+    align-items: center;
 }
 
-.app-header {
-    margin-bottom: 15px;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.tab {
+.deadline-wrapper input[type="datetime-local"] {
+    flex-grow: 1;
+    font-size: 16px;
     padding: 12px;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    z-index: 100;
+    width: 200px;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background-color: var(--primary-light);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.clarification-edit {
+    display: none;
+    margin-top: 10px;
+}
+
+.edit-btn, .save-btn, .cancel-btn {
+    padding: 8px 12px;
+    margin-right: 8px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: var(--primary-light);
+    color: white;
+}
+
+.save-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.file-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 6px 10px;
+    border-radius: 8px;
     font-size: 14px;
 }
 
-.submit-btn {
-    padding: 12px;
-    font-size: 15px;
+.file-item img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
 }
 
-.task-card {
-    padding: 12px;
-    margin-bottom: 10px;
-}
-
-/* Оптимизация для маленьких экранов */
-@media (max-width: 480px) {
-    .container {
-        padding: 8px;
-    }
-    
-    .app-header h1 {
-        font-size: 22px;
-    }
-    
-    .app-header p {
-        font-size: 14px;
-    }
-    
-    .tab {
-        padding: 10px;
-        font-size: 13px;
-    }
-    
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-        padding: 10px;
-    }
-}
-
-/* Telegram-specific стили */
-.tg-theme {
-    background-color: var(--tg-theme-bg-color, #ffffff);
-    color: var(--tg-theme-text-color, #000000);
-}
-
-.tg-theme .app-header {
-    background: var(--tg-theme-button-color, #6a35ff);
-    color: var(--tg-theme-button-text-color, #ffffff);
-}
-
-.tg-theme .submit-btn {
-    background: var(--tg-theme-button-color, #6a35ff);
-    color: var(--tg-theme-button-text-color, #ffffff);
-}
-
-.tg-theme .task-card {
-    background: var(--tg-theme-secondary-bg-color, #f5f5ff);
+.file-remove {
+    margin-left: 8px;
+    color: #ff6b6b;
+    cursor: pointer;
 }

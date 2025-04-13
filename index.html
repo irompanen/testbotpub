@@ -25,20 +25,23 @@
                     <div class="form-group">
                         <label for="taskText">
                             Описание задачи
-                            <span class="info-icon" title="Чем точнее запрос — тем лучше результат!">i</span>
+                            <span class="info-icon" id="infoIcon">i</span>
                             <span class="char-counter"><span id="charsRemaining">1000</span>/1000</span>
                         </label>
                         <textarea id="taskText" rows="4" placeholder="Опишите, что нужно сделать..." maxlength="1000" required></textarea>
+                        <div id="infoTooltip" class="tooltip">Чем точнее запрос — тем лучше результат!</div>
                     </div>
                     
                     <div class="form-group">
                         <label for="deadline">Срок исполнения</label>
-                        <input type="datetime-local" id="deadline" required>
+                        <div class="deadline-wrapper">
+                            <input type="datetime-local" id="deadline" required>
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="photos">Прикрепите фотографии (до 3)</label>
-                        <input type="file" id="photos" accept="image/*" multiple>
+                        <label for="photos">Прикрепите файлы (до 10)</label>
+                        <input type="file" id="photos" multiple>
                         <div id="preview" class="preview-container"></div>
                     </div>
                     

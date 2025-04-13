@@ -13,11 +13,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    // Скрытие клавиатуры при фокусе
+    // Убрано закрытие мини-приложения при фокусе
     taskText.addEventListener('focus', function() {
         tg.HapticFeedback.impactOccurred('light');
-        setTimeout(() => tg.close(), 300);
     });
+
+    // Добавлена кнопка для скрытия клавиатуры
+    const hideKeyboardBtn = document.createElement('button');
+    hideKeyboardBtn.className = 'hide-keyboard-btn';
+    hideKeyboardBtn.textContent = 'Скрыть клавиатуру';
+    hideKeyboardBtn.addEventListener('click', function() {
+        taskText.blur();
+    });
+    taskForm.insertBefore(hideKeyboardBtn, taskForm.lastElementChild);
 
     // Обработка фото (до 10 штук)
     photoInput.addEventListener('change', function(e) {
@@ -49,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         tg.HapticFeedback.impactOccurred('light');
-        tg.close();
 
         const formData = new FormData(taskForm);
         const taskData = {
@@ -60,8 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         tg.sendData(JSON.stringify(taskData));
+        tg.close(); // Закрываем только после отправки данных
     });
-
     // Переключение вкладок
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {

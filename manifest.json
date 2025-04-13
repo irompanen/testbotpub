@@ -1,21 +1,19 @@
 {
-    "name": "Delogate Task Manager",
-    "description": "Мини-приложение для создания и управления задачами",
-    "version": "1.0.0",
+    "name": "Delogate",
     "short_name": "Delogate",
+    "description": "Приложение для делегирования задач",
+    "start_url": "index.html",
+    "display": "standalone",
     "theme_color": "#6a35ff",
     "background_color": "#f5f5ff",
-    "display": "standalone",
-    "orientation": "portrait",
-    "start_url": "index.html",
     "icons": [
         {
-            "src": "icon-192x192.png",
+            "src": "logo.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icon-512x512.png",
+            "src": "logo.png",
             "sizes": "512x512",
             "type": "image/png"
         }

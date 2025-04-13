@@ -1,84 +1,243 @@
-/* Добавьте эти стили в существующий файл */
+:root {
+    --primary-color: #6a35ff;
+    --primary-light: #9a67ff;
+    --primary-dark: #4a00d4;
+    --text-color: #333;
+    --light-text: #f8f9fa;
+    --bg-color: #f5f5ff;
+    --card-bg: #ffffff;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-/* Стили для счетчика символов */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    max-width: 100%;
+    padding: 15px;
+}
+
+.tab-container {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.tab.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.tab-content {
+    padding: 15px;
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form-group input[type="text"],
+.form-group input[type="datetime-local"],
+.form-group textarea,
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.preview-container img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.task-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+.task-id {
+    font-size: 12px;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.task-text {
+    margin-bottom: 8px;
+}
+
+.task-deadline {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.task-status {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.status-created {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-in-progress {
+    background-color: #fff8e1;
+    color: #ff8f00;
+}
+
+/* Новые элементы (сохраняем функциональность) */
 .char-counter {
     float: right;
     font-size: 12px;
     color: #666;
 }
 
-/* Стили для иконки информации */
 .info-icon {
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     background-color: var(--primary-color);
     color: white;
     border-radius: 50%;
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
-    line-height: 16px;
-    margin-left: 5px;
+    line-height: 14px;
+    margin-left: 4px;
     cursor: help;
-    position: relative;
 }
 
-/* Стили для опций срока выполнения */
-.deadline-options {
+.quick-deadline {
     display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
 }
 
-.deadline-option {
-    padding: 8px 12px;
+.quick-deadline button {
+    padding: 4px 8px;
     background-color: #f0f0f0;
     border: none;
-    border-radius: 16px;
+    border-radius: 12px;
+    font-size: 12px;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
-.deadline-option:hover {
+.quick-deadline button:hover {
     background-color: #e0e0e0;
 }
 
-.deadline-option.active {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* Стили для задач в статусе "Уточнение" */
 .task-clarification {
-    background-color: #fff8e1;
-    border-left: 4px solid #ffc107;
+    border-left: 3px solid #ffc107;
 }
 
 .clarification-question {
-    font-weight: 600;
-    margin: 10px 0;
-    color: #ff6f00;
+    font-weight: 500;
+    margin: 8px 0;
+    font-size: 13px;
 }
 
 .clarification-input {
     width: 100%;
-    min-height: 80px;
-    padding: 10px;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    min-height: 60px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    margin: 6px 0;
+    font-size: 13px;
 }
 
 .clarification-counter {
-    font-size: 12px;
+    font-size: 11px;
     color: #666;
     text-align: right;
-}
-
-/* Стили для задач в статусе "Создана" */
-.status-created {
-    background-color: #e3f2fd;
-    color: #1976d2;
 }

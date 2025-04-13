@@ -9,6 +9,11 @@
 </head>
 <body>
     <div class="container">
+        <header class="app-header">
+            <h1>Delogate</h1>
+            <p>Ваш помощник в делегировании задач</p>
+        </header>
+        
         <div class="tab-container">
             <div class="tabs">
                 <button class="tab active" data-tab="create">Новая задача</button>
@@ -18,24 +23,17 @@
             <div id="create" class="tab-content active">
                 <form id="taskForm">
                     <div class="form-group">
-                        <label for="taskText">Описание задачи <span class="info-icon" title="Чем точнее запрос — тем лучше результат!">i</span></label>
-                        <span class="char-counter"><span id="charsRemaining">1000</span>/1000</span>
-                        <textarea id="taskText" rows="4" placeholder="Опишите, что нужно сделать..." maxlength="1000" required></textarea>
+                        <label for="taskText">Описание задачи</label>
+                        <textarea id="taskText" rows="4" placeholder="Опишите, что нужно сделать..." required></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label for="deadline">Срок исполнения</label>
-                        <div class="quick-deadline">
-                            <span>Быстрый выбор:</span>
-                            <button type="button" data-hours="1">1 час</button>
-                            <button type="button" data-hours="3">3 часа</button>
-                            <button type="button" data-hours="24">1 день</button>
-                        </div>
                         <input type="datetime-local" id="deadline" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="photos">Прикрепите фотографии (до 10)</label>
+                        <label for="photos">Прикрепите фотографии, если требуется (до 10)</label>
                         <input type="file" id="photos" accept="image/*" multiple>
                         <div id="preview" class="preview-container"></div>
                     </div>
@@ -46,7 +44,7 @@
             
             <div id="tasks" class="tab-content">
                 <div class="task-list" id="taskList">
-                    <!-- Задачи будут загружены через JS -->
+                    <p class="loading">Загрузка задач...</p>
                 </div>
             </div>
         </div>

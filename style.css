@@ -96,29 +96,21 @@ body {
     position: relative;
 }
 
-.label-wrapper {
+.label-with-info {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 8px;
     margin-bottom: 8px;
+    position: relative;
 }
 
-.form-group label {
-    font-weight: 600;
-    color: var(--primary-dark);
+.info-icon-wrapper {
     display: flex;
-    align-items: center;
-}
-
-.info-icon-container {
-    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 36px;
     height: 36px;
-    margin-left: 5px;
     cursor: pointer;
-    position: relative;
 }
 
 .info-icon {
@@ -137,29 +129,24 @@ body {
 .tooltip {
     display: none;
     position: absolute;
-    left: 0;
-    top: 100%;
+    left: 120px;
+    top: 0;
     background-color: var(--primary-dark);
     color: white;
     padding: 8px 12px;
     border-radius: 8px;
     z-index: 100;
     width: 200px;
-    margin-top: 5px;
     font-size: 14px;
 }
 
-.char-counter {
-    font-size: 14px;
-    color: #666;
-}
-
-.deadline-row {
+.datetime-fields {
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
-.deadline-row input[type="date"] {
+.date-input {
     flex: 2;
     padding: 12px;
     border: 1px solid #ddd;
@@ -167,12 +154,24 @@ body {
     font-size: 16px;
 }
 
-.deadline-row select {
+.time-select {
     flex: 1;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: var(--border-radius);
     font-size: 16px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+}
+
+.char-counter {
+    float: right;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
 }
 
 .form-group input[type="text"],
@@ -459,11 +458,21 @@ body {
         padding: 15px;
     }
     
-    .deadline-row {
+    .datetime-fields {
         flex-direction: column;
     }
     
-    .info-icon-container {
+    .date-input,
+    .time-select {
+        width: 100%;
+    }
+    
+    .tooltip {
+        left: 0;
+        top: 100%;
+    }
+    
+    .info-icon-wrapper {
         width: 28px;
         height: 28px;
     }

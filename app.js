@@ -170,45 +170,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
- function getExampleTasks() {
-    return [
-        {
-            id: 1,
-            text: "Подготовить презентацию для клиента",
-            deadline: new Date(Date.now() + 86400000).toISOString(),
-            status: "completed",
-            solution: "Презентация включает 15 слайдов с анализом рынка.",
-            files: []
-        },
-        {
-            id: 2,
-            text: "Написать техническое задание",
-            deadline: new Date(Date.now() + 172800000).toISOString(),
-            status: "created",
-            files: []
-        },
-        {
-            id: 3,
-            text: "Разработать логотип",
-            deadline: new Date(Date.now() + 259200000).toISOString(),
-            status: "clarification",
-            question: "Какие цвета должны быть в логотипе?",
-            answer: "", // Пустой ответ - пользователь еще не заполнил
-            files: [],
-            editable: true
-        },
-        {
-            id: 4,
-            text: "Подготовить коммерческое предложение",
-            deadline: new Date(Date.now() + 345600000).toISOString(),
-            status: "clarification",
-            question: "Каков бюджет проекта?",
-            answer: null, // Другой вариант пустого ответа
-            files: ["budget.docx"],
-            editable: true
-        }
-    ];
-}
+    function getExampleTasks() {
+        return [
+            {
+                id: 1,
+                text: "Подготовить презентацию для клиента",
+                deadline: new Date(Date.now() + 86400000).toISOString(),
+                status: "completed",
+                solution: "Презентация включает 15 слайдов с анализом рынка.",
+                files: []
+            },
+            {
+                id: 2,
+                text: "Написать техническое задание",
+                deadline: new Date(Date.now() + 172800000).toISOString(),
+                status: "created",
+                files: []
+            },
+            {
+                id: 3,
+                text: "Разработать логотип",
+                deadline: new Date(Date.now() + 259200000).toISOString(),
+                status: "clarification",
+                question: "Какие цвета должны быть в логотипе?",
+                answer: "",
+                files: [],
+                editable: true
+            },
+            {
+                id: 4,
+                text: "Подготовить коммерческое предложение",
+                deadline: new Date(Date.now() + 345600000).toISOString(),
+                status: "clarification",
+                question: "Каков бюджет проекта?",
+                answer: null,
+                files: ["budget.docx"],
+                editable: true
+            }
+        ];
+    }
+
     function renderTasks(tasks) {
         elements.taskList.innerHTML = '';
         
@@ -426,28 +427,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Функция для показа тултипа
-function showTooltip() {
-    const tooltip = document.getElementById('infoTooltip');
-    tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
-    
-    // Скрываем тултип через 3 секунды
-    setTimeout(() => {
-        tooltip.style.display = 'none';
-    }, 3000);
-}
-
 function showTooltip(event) {
     event.stopPropagation();
-    const tooltip = document.getElementById('infoTooltip');
+    const tooltip = event.currentTarget.querySelector('.tooltip') || 
+                   event.currentTarget.parentElement.querySelector('.tooltip');
+    
+    // Скрываем все другие тултипы
+    document.querySelectorAll('.tooltip').forEach(t => {
+        if (t !== tooltip) t.style.display = 'none';
+    });
+    
+    // Переключаем текущий тултип
     tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
     
+    // Скрываем через 4 секунды
     setTimeout(() => {
-        tooltip.style.display = 'none';
-    }, 3000);
+        if (tooltip.style.display === 'block') {
+            tooltip.style.display = 'none';
+        }
+    }, 4000);
 }
 
-document.addEventListener('click', function() {
-    const tooltip = document.getElementById('infoTooltip');
-    tooltip.style.display = 'none';
+// Скрываем тултипы при клике в любом месте страницы
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.info-icon-wrapper')) {
+        document.querySelectorAll('.tooltip').forEach(tooltip => {
+            tooltip.style.display = 'none';
+        });
+    }
 });

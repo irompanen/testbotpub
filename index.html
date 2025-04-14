@@ -23,24 +23,22 @@
             <div id="create" class="tab-content active">
                 <form id="taskForm">
                     <div class="form-group">
-                        <div class="label-wrapper">
-                            <label for="taskText">
-                                Описание задачи
-                                <span class="info-icon-container" onclick="showTooltip(event)">
-                                    <span class="info-icon">i</span>
-                                </span>
-                            </label>
-                            <span class="char-counter"><span id="charsRemaining">1000</span>/1000</span>
+                        <div class="label-with-info">
+                            <label for="taskText">Описание задачи</label>
+                            <div class="info-icon-wrapper" onclick="showTooltip(event)">
+                                <span class="info-icon">i</span>
+                            </div>
+                            <div class="tooltip">Чем точнее запрос — тем лучше результат!</div>
                         </div>
+                        <span class="char-counter"><span id="charsRemaining">1000</span>/1000</span>
                         <textarea id="taskText" rows="4" placeholder="Опишите, что нужно сделать..." maxlength="1000" required></textarea>
-                        <div id="infoTooltip" class="tooltip">Чем точнее запрос — тем лучше результат!</div>
                     </div>
                     
                     <div class="form-group">
                         <label>Срок исполнения</label>
-                        <div class="deadline-row">
-                            <input type="date" id="deadline-date" required>
-                            <select id="deadline-time" required>
+                        <div class="datetime-fields">
+                            <input type="date" id="deadline-date" class="date-input" required>
+                            <select id="deadline-time" class="time-select" required>
                                 <option value="09:00">09:00</option>
                                 <option value="10:00">10:00</option>
                                 <option value="11:00">11:00</option>

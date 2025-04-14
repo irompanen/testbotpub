@@ -96,18 +96,88 @@ body {
     position: relative;
 }
 
-.form-group label {
-    display: block;
+.label-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
+}
+
+.form-group label {
     font-weight: 600;
     color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+}
+
+.info-icon-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-left: 5px;
+    cursor: pointer;
+    position: relative;
+}
+
+.info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background-color: var(--primary-light);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    z-index: 100;
+    width: 200px;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.char-counter {
+    font-size: 14px;
+    color: #666;
+}
+
+.deadline-row {
+    display: flex;
+    gap: 10px;
+}
+
+.deadline-row input[type="date"] {
+    flex: 2;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+}
+
+.deadline-row select {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 16px;
 }
 
 .form-group input[type="text"],
-.form-group input[type="date"],
 .form-group textarea,
-.form-group input[type="file"],
-.form-group select {
+.form-group input[type="file"] {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
@@ -117,9 +187,7 @@ body {
 }
 
 .form-group input[type="text"]:focus,
-.form-group input[type="date"]:focus,
-.form-group textarea:focus,
-.form-group select:focus {
+.form-group textarea:focus {
     border-color: var(--primary-color);
     outline: none;
 }
@@ -282,53 +350,6 @@ body {
     transform: rotate(180deg);
 }
 
-.info-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    background-color: var(--primary-light);
-    color: white;
-    border-radius: 50%;
-    font-size: 12px;
-    font-weight: bold;
-    margin-left: 5px;
-    cursor: pointer;
-}
-
-.tooltip {
-    display: none;
-    position: absolute;
-    background-color: var(--primary-dark);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    z-index: 100;
-    width: 200px;
-    margin-top: 5px;
-    font-size: 14px;
-}
-
-.char-counter {
-    float: right;
-    font-size: 14px;
-    color: #666;
-}
-
-.deadline-inputs {
-    display: flex;
-    gap: 10px;
-}
-
-.deadline-inputs input[type="date"] {
-    flex: 2;
-}
-
-.deadline-inputs select {
-    flex: 1;
-}
-
 .clarification-question {
     margin-top: 10px;
     padding: 10px;
@@ -438,7 +459,12 @@ body {
         padding: 15px;
     }
     
-    .deadline-inputs {
+    .deadline-row {
         flex-direction: column;
+    }
+    
+    .info-icon-container {
+        width: 28px;
+        height: 28px;
     }
 }

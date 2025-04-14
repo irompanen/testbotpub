@@ -8,38 +8,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const elements = {
         taskForm: document.getElementById('taskForm'),
         taskText: document.getElementById('taskText'),
-        deadline: document.getElementById('deadline'),
         photoInput: document.getElementById('photos'),
         preview: document.getElementById('preview'),
         taskList: document.getElementById('taskList'),
         tabs: document.querySelectorAll('.tab'),
         tabContents: document.querySelectorAll('.tab-content'),
-        charsRemaining: document.getElementById('charsRemaining'),
-        infoIcon: document.getElementById('infoIcon'),
-        infoTooltip: document.getElementById('infoTooltip')
+        charsRemaining: document.getElementById('charsRemaining')
     };
 
     // Инициализация даты и времени
-    const now = new Date();
-    now.setHours(now.getHours() + 1);
-    const minDateTime = now.toISOString().slice(0, 16);
-    elements.deadline.min = minDateTime;
-    elements.deadline.value = minDateTime;
+    initDateTime();
 
     // Обработчики событий
     setupEventListeners();
 
+    function initDateTime() {
+        const now = new Date();
+        const dateInput = document.getElementById('deadline-date');
+        const timeSelect = document.getElementById('deadline-time');
+        
+        // Устанавливаем минимальную дату (сегодня)
+        dateInput.min = now.toISOString().split('T')[0];
+        dateInput.value = now.toISOString().split('T')[0];
+        
+        // Устанавливаем ближайшее время (следующий час)
+        const nextHour = now.getHours() + 1;
+        const availableTimes = Array.from(timeSelect.options).map(opt => opt.value);
+        const closestTime = availableTimes.find(t => parseInt(t.split(':')[0]) >= nextHour) || '18:00';
+        timeSelect.value = closestTime;
+    }
+
     function setupEventListeners() {
-        // Информер
-        elements.infoIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            elements.infoTooltip.style.display = elements.infoTooltip.style.display === 'block' ? 'none' : 'block';
-        });
-
-        document.addEventListener('click', function() {
-            elements.infoTooltip.style.display = 'none';
-        });
-
         // Ограничение символов
         elements.taskText.addEventListener('input', updateCharCounter);
 
@@ -116,13 +115,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Получаем выбранные дату и время
+        const date = document.getElementById('deadline-date').value;
+        const time = document.getElementById('deadline-time').value;
+        const deadline = `${date}T${time}:00`;
+
         tg.MainButton.showProgress();
         tg.HapticFeedback.impactOccurred('medium');
 
         const taskData = {
             action: 'create_task',
             text: elements.taskText.value,
-            deadline: elements.deadline.value,
+            deadline: deadline,
             files: Array.from(elements.photoInput.files).slice(0, 10).map(f => f.name)
         };
 
@@ -411,4 +415,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tg.initDataUnsafe.user) {
         console.log(`User: ${tg.initDataUnsafe.user.first_name} ${tg.initDataUnsafe.user.last_name}`);
     }
-}); // Закрывающая скобка для DOMContentLoaded
+});
+
+// Функция для показа тултипа
+function showTooltip() {
+    const tooltip = document.getElementById('infoTooltip');
+    tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
+    
+    // Скрываем тултип через 3 секунды
+    setTimeout(() => {
+        tooltip.style.display = 'none';
+    }, 3000);
+}

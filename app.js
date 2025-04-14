@@ -170,36 +170,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function getExampleTasks() {
-        return [
-            {
-                id: 1,
-                text: "Подготовить презентацию для клиента",
-                deadline: new Date(Date.now() + 86400000).toISOString(),
-                status: "completed",
-                solution: "Презентация включает 15 слайдов с анализом рынка.",
-                files: []
-            },
-            {
-                id: 2,
-                text: "Написать техническое задание",
-                deadline: new Date(Date.now() + 172800000).toISOString(),
-                status: "created",
-                files: []
-            },
-            {
-                id: 3,
-                text: "Разработать логотип",
-                deadline: new Date(Date.now() + 259200000).toISOString(),
-                status: "clarification",
-                question: "Какие цвета должны быть в логотипе?",
-                answer: "Предпочтительно синие и белые цвета",
-                files: ["logo_ref1.jpg", "brand_guide.pdf"],
-                editable: true
-            }
-        ];
-    }
-
+ function getExampleTasks() {
+    return [
+        {
+            id: 1,
+            text: "Подготовить презентацию для клиента",
+            deadline: new Date(Date.now() + 86400000).toISOString(),
+            status: "completed",
+            solution: "Презентация включает 15 слайдов с анализом рынка.",
+            files: []
+        },
+        {
+            id: 2,
+            text: "Написать техническое задание",
+            deadline: new Date(Date.now() + 172800000).toISOString(),
+            status: "created",
+            files: []
+        },
+        {
+            id: 3,
+            text: "Разработать логотип",
+            deadline: new Date(Date.now() + 259200000).toISOString(),
+            status: "clarification",
+            question: "Какие цвета должны быть в логотипе?",
+            answer: "", // Пустой ответ - пользователь еще не заполнил
+            files: [],
+            editable: true
+        },
+        {
+            id: 4,
+            text: "Подготовить коммерческое предложение",
+            deadline: new Date(Date.now() + 345600000).toISOString(),
+            status: "clarification",
+            question: "Каков бюджет проекта?",
+            answer: null, // Другой вариант пустого ответа
+            files: ["budget.docx"],
+            editable: true
+        }
+    ];
+}
     function renderTasks(tasks) {
         elements.taskList.innerHTML = '';
         
@@ -427,3 +436,18 @@ function showTooltip() {
         tooltip.style.display = 'none';
     }, 3000);
 }
+
+function showTooltip(event) {
+    event.stopPropagation();
+    const tooltip = document.getElementById('infoTooltip');
+    tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
+    
+    setTimeout(() => {
+        tooltip.style.display = 'none';
+    }, 3000);
+}
+
+document.addEventListener('click', function() {
+    const tooltip = document.getElementById('infoTooltip');
+    tooltip.style.display = 'none';
+});

@@ -93,6 +93,7 @@ body {
 
 .form-group {
     margin-bottom: 20px;
+    position: relative;
 }
 
 .form-group label {
@@ -103,9 +104,10 @@ body {
 }
 
 .form-group input[type="text"],
-.form-group input[type="datetime-local"],
+.form-group input[type="date"],
 .form-group textarea,
-.form-group input[type="file"] {
+.form-group input[type="file"],
+.form-group select {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
@@ -114,13 +116,10 @@ body {
     transition: border 0.3s;
 }
 
-.form-group input[type="datetime-local"] {
-    font-size: 16px;
-}
-
 .form-group input[type="text"]:focus,
-.form-group input[type="datetime-local"]:focus,
-.form-group textarea:focus {
+.form-group input[type="date"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
     border-color: var(--primary-color);
     outline: none;
 }
@@ -307,14 +306,27 @@ body {
     border-radius: 8px;
     z-index: 100;
     width: 200px;
-    font-size: 14px;
     margin-top: 5px;
+    font-size: 14px;
 }
 
 .char-counter {
     float: right;
     font-size: 14px;
     color: #666;
+}
+
+.deadline-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.deadline-inputs input[type="date"] {
+    flex: 2;
+}
+
+.deadline-inputs select {
+    flex: 1;
 }
 
 .clarification-question {
@@ -424,5 +436,9 @@ body {
     
     .tab-content {
         padding: 15px;
+    }
+    
+    .deadline-inputs {
+        flex-direction: column;
     }
 }
